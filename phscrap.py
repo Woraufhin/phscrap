@@ -8,7 +8,8 @@ import cStringIO
 
 import bs4
 import requests
-import tabulate
+
+from scrapers import Argenscrap
 
 
 URL = 'http://www.argenprop.com/Departamentos-tipo-casa-Alquiler-Almagro-' + \
@@ -55,33 +56,11 @@ soup = bs4.BeautifulSoup(r.text, 'html.parser')
 
 lis = soup.find_all('li', {'class': 'avisoitem'})
 
-headers = [u'Dirección', u'Título', u'Precio', u'Datos']
+headers = [u'Título', u'Dirección', u'Precio', u'Info', u'URL']
 
-address = [e.find('h2')
-            .get_text()
-            .strip()
-           for e in lis]
-
-title = [e.find('h3')
-          .get_text()
-          .strip()
-         for e in lis]
-
-common = [e.find('div', {'class': 'datoscomunes'})
-           .get_text()
-           .replace('\n', ' ')
-          for e in lis]
-
-price = [e.find('p', {'class': 'list-price'})
-          .get_text()
-          .replace('\n', ' ')
-         for e in lis]
-
-cols = [address, title, price, common]
-rows = zip(*cols)
+argenscrap = Argenscrap(lis)
+houses = argenscrap.scrap()
 
 with open(os.path.expanduser('~/sample.csv'), 'wb') as f:
-        writer = UnicodeWriter(f)
-        writer.writerows([headers] + rows)
-
-print tabulate.tabulate(rows, headers=headers, tablefmt='fancy_grid')
+    writer = UnicodeWriter(f)
+    writer.writerows([headers] + [e.row for e in houses])
