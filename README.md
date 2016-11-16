@@ -4,6 +4,7 @@ PH scraper
 - [x] Make it virtualenv friendly
 - [x] Add config
 - [x] Daemon should know it's list of scrappers
+- [ ] There should be one scrapper per service (argenprop, zonaprop), not one for URL.
 - [ ] Improve self.soup logic
 - [ ] Add a "page index", since for now it only scraps one page of results.
 - [ ] Daemon shouldn't know about csv headers
