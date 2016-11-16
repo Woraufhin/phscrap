@@ -1,5 +1,8 @@
 from abc import ABCMeta, abstractmethod
 
+import bs4
+import requests
+
 from house import House
 
 
@@ -7,8 +10,11 @@ class Scraper(object):
 
     __metaclass__ = ABCMeta
 
-    def __init__(self, soup):
-        self.soup = soup
+    TIMEOUT = 30
+
+    def __init__(self, url):
+        self.url = url
+        self.soup = None
 
     @abstractmethod
     def scrap(self):
@@ -17,10 +23,23 @@ class Scraper(object):
         """
         pass
 
+    def request(self):
+        r = requests.get(self.url, timeout=self.TIMEOUT)
+        r.raise_for_status()
+        return r.text
+
 
 class Argenscrap(Scraper):
 
     URL = 'http://www.argenprop.com'
+
+    def __init__(self, url):
+        Scraper.__init__(self, url)
+        self.get_soup()
+
+    def get_soup(self):
+        html = bs4.BeautifulSoup(self.request(), 'html.parser')
+        self.soup = html.find_all('li', {'class': 'avisoitem'})
 
     def scrap(self):
         cols = [

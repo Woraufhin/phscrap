@@ -2,26 +2,22 @@
 # -*- coding: utf-8 -*-
 
 import os
+import io
 import csv
 import codecs
+import argparse
 import cStringIO
 
-import bs4
-import requests
+import toml
 
-from scrapers import Argenscrap
+from scrapers import Scraper, Argenscrap
 
 
-URL = 'http://www.argenprop.com/Departamentos-tipo-casa-Alquiler-Almagro-' + \
-      'Barrio-Norte-2-Dormitorios-Capital-Federal/mQ2KrbQ1KpQ1KprQ2KpaQ13' + \
-      '5Kaf_801Kaf_817Kaf_100000001Kaf_800000002Kaf_800000004Kaf_80000000' + \
-      '5Kaf_800000008Kaf_800000010Kaf_800000011Kaf_800000020Kaf_800000021' + \
-      'Kaf_800000029Kaf_800000040Kaf_900000001Kaf_900000002Kaf_900000003K' + \
-      'af_900000004Kaf_900000005Kaf_900000006Kaf_900000008Kaf_900000009Ka' + \
-      'f_900000007Kaf_900000010Kaf_900000011Kaf_900000012Kaf_900000013Kaf' + \
-      '_900000014Kaf_900000015Kaf_900000016Kaf_900000033Kaf_900000034Kaf_' + \
-      '900000036Kaf_900000038Kaf_900000037Kaf_900000035Kaf_500000001Kaf_7' + \
-      '3KvnQVistaResultadosKvncQVistaGrilla'
+class ConfigException(Exception):
+    """
+    Something went wrong with config
+    """
+    pass
 
 
 class UnicodeWriter:
@@ -49,18 +45,61 @@ class UnicodeWriter:
             self.writerow(row)
 
 
-r = requests.get(URL)
-r.raise_for_status()
+class Daemon(object):
 
-soup = bs4.BeautifulSoup(r.text, 'html.parser')
+    headers = [u'Título', u'Dirección', u'Precio', u'Info', u'URL']
 
-lis = soup.find_all('li', {'class': 'avisoitem'})
+    def __init__(self, config):
+        self.config = config
+        self.scrappers = []
+        self.houses = []
 
-headers = [u'Título', u'Dirección', u'Precio', u'Info', u'URL']
+    def scrap(self):
+        for scrapper in self.scrappers:
+            self.houses.extend(scrapper.scrap())
+        self.write_csv()
 
-argenscrap = Argenscrap(lis)
-houses = argenscrap.scrap()
+    def write_csv(self):
+        with open(os.path.expanduser('~/new_sample.csv'), 'wb') as f:
+            writer = UnicodeWriter(f)
+            writer.writerows([self.headers] + [e.row for e in self.houses])
 
-with open(os.path.expanduser('~/sample.csv'), 'wb') as f:
-    writer = UnicodeWriter(f)
-    writer.writerows([headers] + [e.row for e in houses])
+    def add_scrappers(self):
+        for key, val in self.config['data'].iteritems():
+            if key == 'argenprop':
+                self.scrappers.extend([Argenscrap(url) for url in val])
+
+
+def parse_args():
+    parser = argparse.ArgumentParser(description='Scrapper')
+    parser.add_argument(
+        '-c', '--config', default=None,
+        help='Path to the configuration file'
+    )
+    parser.add_argument(
+        '-u', '--url',
+        action='append',
+        help='List of urls'
+    )
+    return parser.parse_args()
+
+
+def get_config(path):
+    try:
+        with io.open(path, encoding='utf-8') as f:
+            return toml.load(f)
+    except TypeError:
+        raise ConfigException('Config cannot be None')
+    except IOError as e:
+        raise ConfigException(e)
+
+
+def main():
+    args = parse_args()
+
+    config = get_config(args.config)
+    Scraper.timeout = config['settings']['timeout']
+
+    daemon = Daemon(config)
+    daemon.add_scrappers()
+    daemon.scrap()
