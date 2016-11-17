@@ -14,4 +14,4 @@ PH scraper
 - [ ] Make daemon inform of diffs in csv between runs
 - [ ] Logging
 - [ ] Make it loop forever and sleep between interval defined in config
-- [ ] Debianize service
+- [x] Debianize service

@@ -1,0 +1,9 @@
+description     "Phscraper"
+author          "Juan Schandin <jschandin@gmail.com>"
+
+stop on runlevel [!2345]
+
+respawn
+respawn limit 120 1800
+
+exec phscrap

@@ -1,0 +1,8 @@
+[Unit]
+Description=AMQP End Point for squealer
+Documentation=https://github.com/Woraufhin/phscrap
+After=local-fs.target
+
+[Service]
+Restart=on-failure
+ExecStart=/usr/bin/phscrap >/var/log/phscrap.log 2>&1

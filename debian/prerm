@@ -1,0 +1,6 @@
+#!/bin/bash -e
+
+if service phscrap status | grep -q 'running' ; then
+    service phscrap stop || true
+fi
+
