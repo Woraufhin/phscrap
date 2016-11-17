@@ -11,6 +11,7 @@ import cStringIO
 import toml
 
 from scrapers import Scraper, Argenscrap
+from house import House
 
 
 class ConfigException(Exception):
@@ -47,8 +48,6 @@ class UnicodeWriter:
 
 class Daemon(object):
 
-    headers = [u'Título', u'Dirección', u'Precio', u'Info', u'URL']
-
     def __init__(self, config):
         self.config = config
         self.scrappers = []
@@ -62,7 +61,7 @@ class Daemon(object):
     def write_csv(self):
         with open(os.path.expanduser('~/new_sample.csv'), 'wb') as f:
             writer = UnicodeWriter(f)
-            writer.writerows([self.headers] + [e.row for e in self.houses])
+            writer.writerows([House.headers] + [e.row for e in self.houses])
 
     def add_scrappers(self):
         for key, val in self.config['data'].iteritems():

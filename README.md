@@ -7,7 +7,7 @@ PH scraper
 - [ ] There should be one scrapper per service (argenprop, zonaprop), not one for URL.
 - [ ] Improve self.soup logic
 - [ ] Add a "page index", since for now it only scraps one page of results.
-- [ ] Daemon shouldn't know about csv headers
+- [x] Daemon shouldn't know about csv headers
 - [ ] Add Zonaprop scraper
 - [ ] Add the possibility of a single run
 - [ ] Clean repeated houses from self.houses
