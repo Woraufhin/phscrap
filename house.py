@@ -16,6 +16,15 @@ class House(object):
         self.info = info
         self.link = link
 
+    def __hash__(self):
+        return hash(self.title) ^ hash(self.address)
+
+    def __eq__(self, other):
+        """Override the default equals behaviour"""
+        if isinstance(other, self.__class__):
+            return [self.title, self.address] == [other.title, other.address]
+        return NotImplemented
+
     @property
     def row(self):
         return [

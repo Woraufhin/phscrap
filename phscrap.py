@@ -61,7 +61,9 @@ class Daemon(object):
     def write_csv(self):
         with open(os.path.expanduser('~/new_sample.csv'), 'wb') as f:
             writer = UnicodeWriter(f)
-            writer.writerows([House.headers] + [e.row for e in self.houses])
+            writer.writerows(
+                [House.headers] + [x.row for x in set(self.houses)]
+            )
 
     def add_scrappers(self):
         for key, val in self.config['data'].iteritems():

@@ -10,7 +10,7 @@ PH scraper
 - [x] Daemon shouldn't know about csv headers
 - [ ] Add Zonaprop scraper
 - [ ] Add the possibility of a single run
-- [ ] Clean repeated houses from self.houses
+- [x] Clean repeated houses from self.houses
 - [ ] Make daemon inform of diffs in csv between runs
 - [ ] Logging
 - [ ] Make it loop forever and sleep between interval defined in config
