@@ -14,7 +14,6 @@ class Scraper(object):
 
     def __init__(self, url):
         self.url = url
-        self.soup = None
 
     @abstractmethod
     def scrap(self):
@@ -35,11 +34,11 @@ class Argenscrap(Scraper):
 
     def __init__(self, url):
         Scraper.__init__(self, url)
-        self.get_soup()
+        self.soup = self.get_soup()
 
     def get_soup(self):
         html = bs4.BeautifulSoup(self.request(), 'html.parser')
-        self.soup = html.find_all('li', {'class': 'avisoitem'})
+        return html.find_all('li', {'class': 'avisoitem'})
 
     def scrap(self):
         cols = [
