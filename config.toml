@@ -1,10 +1,13 @@
 [data]
-# List of URLs (NOT IMPLEMENTED)
-zonaprop = []
+# List of URLs for ZonaCrap
+zonaprop = [
+    # PHs, 2 dormitorios, barrios piolas
+    "http://www.zonaprop.com.ar/ph-alquiler-almagro-barrio-norte-belgrano-caballito-chacarita-colegiales-palermo-parque-centenario-villa-crespo-2-habitaciones-orden-precio-ascendente.html",
+]
 
-# List of URLs
+# List of URLs for ArgenCrap
 argenprop = [
-    # Departamento tipo casa, 2 dormitorios, en los barrios que queremos los pies
+    # Departamento tipo casa, 2 dormitorios, en los barrios que queremos los pibes
     "http://www.argenprop.com/Departamentos-tipo-casa-Alquiler-Almagro-Barrio-Norte-2-Dormitorios-Capital-Federal/mQ2KpQ1Kaf_801Kaf_817Kaf_100000001Kaf_500000001Kaf_73KvnQVistaResultadosKvncQVistaGrillaKaf_800000002Kaf_800000004Kaf_800000005Kaf_800000008Kaf_800000010Kaf_800000011Kaf_800000020Kaf_800000021Kaf_800000029Kaf_800000040Kaf_900000006Kaf_900000008Kaf_900000009Kaf_900000007Kaf_900000010Kaf_900000011Kaf_900000012Kaf_900000013Kaf_900000014Kaf_900000015Kaf_900000016Kaf_900000033Kaf_900000034Kaf_900000036Kaf_900000038Kaf_900000037Kaf_900000035",
     # Casa, 2 dormitorios, en los barrios pio
     "http://www.argenprop.com/Casas-Alquiler-Almagro-Barrio-Norte-2-Dormitorios-Capital-Federal/mQ2KpQ1Kaf_802Kaf_817Kaf_100000001Kaf_500000001Kaf_48KvnQVistaResultadosKvncQVistaGrillaKaf_800000002Kaf_800000004Kaf_800000005Kaf_800000008Kaf_800000010Kaf_800000011Kaf_800000020Kaf_800000021Kaf_800000029Kaf_800000040Kaf_900000001Kaf_900000002Kaf_900000003Kaf_900000004Kaf_900000005Kaf_900000006Kaf_900000008Kaf_900000009Kaf_900000007Kaf_900000010Kaf_900000011Kaf_900000012Kaf_900000013Kaf_900000014Kaf_900000015Kaf_900000016Kaf_900000033Kaf_900000034Kaf_900000036Kaf_900000038Kaf_900000037Kaf_900000035",
@@ -14,5 +17,5 @@ argenprop = [
 # Interval in seconds to perform check
 interval = 3600
 
-# Timeout for reqest
+# Timeout for request
 timeout = 30
