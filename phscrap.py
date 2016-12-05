@@ -10,7 +10,7 @@ import cStringIO
 
 import toml
 
-from scrapers import Scraper, Argenscrap
+from scrapers import Scraper, Argencrap, Zonacrap
 from house import House
 
 
@@ -68,7 +68,9 @@ class Daemon(object):
     def add_scrappers(self):
         for key, val in self.config['data'].iteritems():
             if key == 'argenprop':
-                self.scrappers.extend([Argenscrap(url) for url in val])
+                self.scrappers.extend([Argencrap(url) for url in val])
+            if key == 'zonaprop':
+                self.scrappers.extend([Zonacrap(url) for url in val])
 
 
 def parse_args():
