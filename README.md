@@ -12,6 +12,6 @@ PH scraper
 - [ ] Add the possibility of a single run
 - [x] Clean repeated houses from self.houses
 - [ ] Make daemon inform of diffs in csv between runs
-- [ ] Logging
-- [ ] Make it loop forever and sleep between interval defined in config
+- [x] Logging
+- [x] Make it loop forever and sleep between interval defined in config
 - [x] Debianize service
