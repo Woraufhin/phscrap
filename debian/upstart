@@ -6,4 +6,4 @@ stop on runlevel [!2345]
 respawn
 respawn limit 120 1800
 
-exec phscrap
+exec phscrap 2>&1 >/var/log/phscrap/output.log
