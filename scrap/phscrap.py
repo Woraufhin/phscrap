@@ -1,17 +1,15 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 import io
-import csv
-import codecs
 import logging
 import argparse
-import cStringIO
+import collections
 from time import sleep
 
 import toml
 
 from .scrapers import Scraper, Argencrap, Zonacrap
+from .unicode_csv import UnicodeReader, UnicodeWriter
 from .house import House
 
 
@@ -22,34 +20,7 @@ class ConfigException(Exception):
     pass
 
 
-class UnicodeWriter:
-    """
-    A CSV writer which will write rows to CSV file "f",
-    which is encoded in the given encoding.
-    """
-
-    def __init__(self, f, dialect=csv.excel, encoding="utf-8", **kwds):
-        self.queue = cStringIO.StringIO()
-        self.writer = csv.writer(self.queue, dialect=dialect, **kwds)
-        self.stream = f
-        self.encoder = codecs.getincrementalencoder(encoding)()
-
-    def writerow(self, row):
-        self.writer.writerow([s.encode("utf-8") for s in row])
-        data = self.queue.getvalue()
-        data = data.decode("utf-8")
-        data = self.encoder.encode(data)
-        self.stream.write(data)
-        self.queue.truncate(0)
-
-    def writerows(self, rows):
-        for row in rows:
-            self.writerow(row)
-
-
 class Daemon(object):
-
-    DATA = '/var/lib/phscrap/scrap.csv'
 
     def __init__(self, config):
         self.config = config
@@ -57,19 +28,25 @@ class Daemon(object):
         self.houses = []
 
     def scrap(self):
-        logging.info('Entering main loop.')
-        logging.debug('Interval between runs is %i' %
-                      self.config['settings']['interval'])
+        if not self.config['settings']['single_run']:
+            logging.info('Entering main loop.')
+            logging.debug('Interval between runs is %i' %
+                          self.config['settings']['interval'])
+            while True:
+                self._scrap()
+                sleep(self.config['settings']['interval'])
+        else:
+            self._scrap()
 
-        while True:
-            for scrapper in self.scrappers:
-                self.houses.extend(scrapper.scrap())
-            self.write_csv()
-            sleep(self.config['settings']['interval'])
+    def _scrap(self):
+        logging.info('Scraping.')
+        for scrapper in self.scrappers:
+            self.houses.extend(scrapper.scrap())
+        self.write_csv()
 
     def write_csv(self):
-        logging.info('Writing CSV in %s' % self.DATA)
-        with open(self.DATA, 'wb') as f:
+        logging.info('Writing CSV in %s' % self.config['settings']['out'])
+        with open(self.config['settings']['out'], 'wb') as f:
             writer = UnicodeWriter(f)
             writer.writerows(
                 [House.headers] + [x.row for x in set(self.houses)]
@@ -91,6 +68,20 @@ def parse_args():
         '-c', '--config', default='/etc/phscrap/config.toml',
         help='Path to the configuration file'
     )
+    parser.add_argument(
+        '-o', '--out', default=None,
+        help='Path to the csv file'
+    )
+    parser.add_argument(
+        '-s', '--single-run', action='store_true',
+        help='Run scraper once'
+    )
+    parser.add_argument(
+        '-v', '--verbosity',
+        default=None,
+        choices=['DEBUG', 'INFO', 'WARNING', 'ERROR'],
+        help='Verbosity level default: INFO'
+    )
     return parser.parse_args()
 
 
@@ -104,21 +95,41 @@ def get_config(path):
         raise ConfigException(e)
 
 
-def configure_logging(verbosity, log_file):
-    logging.basicConfig(
-        level=getattr(logging, verbosity),
-        filename=log_file,
-        format='[%(asctime)s] [%(levelname)s] %(message)s'
-    )
+def configure_logging(verbosity, log_file, single_run):
+    params = {
+        'level': getattr(logging, verbosity),
+        'format': '[%(asctime)s] [%(levelname)s] %(message)s'
+    }
+
+    if not single_run:
+        params['filename'] = log_file
+
+    logging.basicConfig(**params)
+
+
+def _non_default(key, value, config):
+    """True when value is valid or new for the config"""
+    return value not in (None, tuple(), list()) or key not in config
+
+
+def _deep_merge(base, override):
+    for k, v in override.items():
+        if v and isinstance(v, collections.Mapping):
+            base[k] = _deep_merge(base.get(k, {}), v)
+        else:
+            # Override config has value or is new
+            if _non_default(k, v, base):
+                base[k] = v
+    return base
 
 
 def main():
     args = parse_args()
-    config = get_config(args.config)
-
+    config = _deep_merge(get_config(args.config), {'settings': args.__dict__})
     configure_logging(
         config['settings']['verbosity'],
-        config['settings']['log_file']
+        config['settings']['log_file'],
+        config['settings']['single_run']
     )
 
     logging.info('Initializing phscraper')
