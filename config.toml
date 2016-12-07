@@ -19,3 +19,9 @@ interval = 3600
 
 # Timeout for request
 timeout = 30
+
+# Log level
+verbosity = "INFO"
+
+# Log file
+log_file = "/var/log/phscrap/scrap.log"
