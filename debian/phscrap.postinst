@@ -1,0 +1,10 @@
+#!/bin/bash -e
+
+if ! getent passwd phscrap >/dev/null ; then
+    adduser --system --no-create-home phscrap
+fi
+
+chown -R phscrap /var/log/phscrap /var/lib/phscrap
+
+service phscrap restart
+

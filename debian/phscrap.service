@@ -1,8 +1,10 @@
 [Unit]
-Description=AMQP End Point for squealer
+Description=Houses scrapper
 Documentation=https://github.com/Woraufhin/phscrap
 After=local-fs.target
 
 [Service]
 Restart=on-failure
-ExecStart=/usr/bin/phscrap >/var/log/phscrap.log 2>&1
+User=phscrap
+ExecStart=/usr/bin/phscrap >/var/log/phscrap/phscrap.log 2>&1
+
