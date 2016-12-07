@@ -17,6 +17,11 @@ argenprop = [
 # Interval in seconds to perform check
 interval = 3600
 
+# Cache files (no need to create default folder, but
+# bare in mind if you change it that new folder would
+# need write permissions for user phscrap)
+out = "/var/lib/phscrap/scrap.csv"
+
 # Timeout for request
 timeout = 30
 
