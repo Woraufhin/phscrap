@@ -1,17 +1,18 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os
 import io
 import csv
 import codecs
+import logging
 import argparse
 import cStringIO
+from time import sleep
 
 import toml
 
-from scrapers import Scraper, Argencrap, Zonacrap
-from house import House
+from .scrapers import Scraper, Argencrap, Zonacrap
+from .house import House
 
 
 class ConfigException(Exception):
@@ -48,18 +49,27 @@ class UnicodeWriter:
 
 class Daemon(object):
 
+    DATA = '/var/lib/phscrap/scrap.csv'
+
     def __init__(self, config):
         self.config = config
         self.scrappers = []
         self.houses = []
 
     def scrap(self):
-        for scrapper in self.scrappers:
-            self.houses.extend(scrapper.scrap())
-        self.write_csv()
+        logging.info('Entering main loop.')
+        logging.debug('Interval between runs is %i' %
+                      self.config['settings']['interval'])
+
+        while True:
+            for scrapper in self.scrappers:
+                self.houses.extend(scrapper.scrap())
+            self.write_csv()
+            sleep(self.config['settings']['interval'])
 
     def write_csv(self):
-        with open(os.path.expanduser('~/new_sample.csv'), 'wb') as f:
+        logging.info('Writing CSV in %s' % self.DATA)
+        with open(self.DATA, 'wb') as f:
             writer = UnicodeWriter(f)
             writer.writerows(
                 [House.headers] + [x.row for x in set(self.houses)]
@@ -71,18 +81,15 @@ class Daemon(object):
                 self.scrappers.extend([Argencrap(url) for url in val])
             if key == 'zonaprop':
                 self.scrappers.extend([Zonacrap(url) for url in val])
+            else:
+                logging.warning('Unknown scraper "%s"' % key)
 
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Scrapper')
     parser.add_argument(
-        '-c', '--config', default=None,
+        '-c', '--config', default='/etc/phscrap/config.toml',
         help='Path to the configuration file'
-    )
-    parser.add_argument(
-        '-u', '--url',
-        action='append',
-        help='List of urls'
     )
     return parser.parse_args()
 
@@ -97,11 +104,26 @@ def get_config(path):
         raise ConfigException(e)
 
 
+def configure_logging(verbosity, log_file):
+    logging.basicConfig(
+        level=getattr(logging, verbosity),
+        filename=log_file,
+        format='[%(asctime)s] [%(levelname)s] %(message)s'
+    )
+
+
 def main():
     args = parse_args()
-
     config = get_config(args.config)
+
+    configure_logging(
+        config['settings']['verbosity'],
+        config['settings']['log_file']
+    )
+
+    logging.info('Initializing phscraper')
     Scraper.timeout = config['settings']['timeout']
+    logging.debug('Timeout for requests is %i' % Scraper.timeout)
 
     daemon = Daemon(config)
     daemon.add_scrappers()

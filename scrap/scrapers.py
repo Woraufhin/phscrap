@@ -1,9 +1,11 @@
+import logging
+import itertools
 from abc import ABCMeta, abstractmethod
 
 import bs4
 import requests
 
-from house import House
+from .house import House
 
 
 class Scraper(object):
@@ -11,8 +13,10 @@ class Scraper(object):
     __metaclass__ = ABCMeta
 
     TIMEOUT = 30
+    TRACK = itertools.count(1).next
 
     def __init__(self, url):
+        self.id = self.TRACK()
         self.url = url
 
     @abstractmethod
@@ -26,6 +30,12 @@ class Scraper(object):
         r = requests.get(self.url, timeout=self.TIMEOUT)
         r.raise_for_status()
         return r.text
+
+    def __str__(self):
+        return '{} #{}'.format(
+            self.__class__.__name__,
+            self.id
+        )
 
 
 class Zonacrap(Scraper):
@@ -50,6 +60,8 @@ class Zonacrap(Scraper):
         ]
 
         rows = zip(*cols)
+        logging.info('[%s] Found %i houses' % (self, len(rows)))
+
         return [House(*row) for row in rows]
 
     def get_title(self):
@@ -59,13 +71,13 @@ class Zonacrap(Scraper):
     def get_address(self):
         return [e.find('div', {'class': 'post-text-location'})
                  .get_text()
-                 .strip()
+                 .replace('\n', ' ')
                 for e in self.soup]
 
     def get_info(self):
         return [e.find('ul', {'class': 'misc unstyled'})
                  .get_text()
-                 .strip()
+                 .replace('\n', ' ')
                 for e in self.soup]
 
     def get_price(self):
@@ -103,6 +115,8 @@ class Argencrap(Scraper):
         ]
 
         rows = zip(*cols)
+        logging.info('[%s] Found %i houses' % (self, len(rows)))
+
         return [House(*row) for row in rows]
 
     def get_title(self):
