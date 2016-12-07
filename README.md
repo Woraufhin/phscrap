@@ -9,7 +9,7 @@ PH scraper
 - [ ] Add a "page index", since for now it only scraps one page of results.
 - [x] Daemon shouldn't know about csv headers
 - [x] Add Zonaprop scraper
-- [ ] Add the possibility of a single run
+- [x] Add the possibility of a single run
 - [x] Clean repeated houses from self.houses
 - [ ] Make daemon inform of diffs in csv between runs
 - [x] Logging
