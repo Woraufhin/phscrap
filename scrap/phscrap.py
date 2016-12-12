@@ -14,9 +14,7 @@ from .house import House
 
 
 class ConfigException(Exception):
-    """
-    Something went wrong with config
-    """
+    """Something went wrong with config"""
     pass
 
 
@@ -30,7 +28,7 @@ class Daemon(object):
     def scrap(self):
         if not self.config['settings']['single_run']:
             logging.info('Entering main loop.')
-            logging.debug('Interval between runs is %i' %
+            logging.debug('Interval between runs is %i',
                           self.config['settings']['interval'])
             while True:
                 self._scrap()
@@ -45,7 +43,7 @@ class Daemon(object):
         self.write_csv()
 
     def write_csv(self):
-        logging.info('Writing CSV in %s' % self.config['settings']['out'])
+        logging.info('Writing CSV in %s', self.config['settings']['out'])
         with open(self.config['settings']['out'], 'wb') as f:
             writer = UnicodeWriter(f)
             writer.writerows(
@@ -59,7 +57,7 @@ class Daemon(object):
             if key == 'zonaprop':
                 self.scrappers.extend([Zonacrap(url) for url in val])
             else:
-                logging.warning('Unknown scraper "%s"' % key)
+                logging.warning('Unknown scraper "%s"', key)
 
 
 def parse_args():
@@ -134,7 +132,7 @@ def main():
 
     logging.info('Initializing phscraper')
     Scraper.timeout = config['settings']['timeout']
-    logging.debug('Timeout for requests is %i' % Scraper.timeout)
+    logging.debug('Timeout for requests is %i', Scraper.timeout)
 
     daemon = Daemon(config)
     daemon.add_scrappers()
