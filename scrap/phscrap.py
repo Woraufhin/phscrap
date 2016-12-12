@@ -54,7 +54,7 @@ class Daemon(object):
         for key, val in self.config['data'].iteritems():
             if key == 'argenprop':
                 self.scrappers.extend([Argencrap(url) for url in val])
-            if key == 'zonaprop':
+            elif key == 'zonaprop':
                 self.scrappers.extend([Zonacrap(url) for url in val])
             else:
                 logging.warning('Unknown scraper "%s"', key)
