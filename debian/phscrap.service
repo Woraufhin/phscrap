@@ -6,5 +6,5 @@ After=local-fs.target
 [Service]
 Restart=on-failure
 User=phscrap
-ExecStart=/usr/bin/phscrap >/var/log/phscrap/phscrap.log 2>&1
+ExecStart=/bin/sh -c '/usr/bin/phscrap > /var/log/phscrap/phscrap.log 2>&1'
 
