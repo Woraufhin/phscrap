@@ -9,8 +9,8 @@ from time import sleep
 import toml
 
 from .scrapers import Scraper, Argencrap, Zonacrap
-from .unicode_csv import UnicodeReader, UnicodeWriter
 from .house import House
+from .utils import write_csv, find_differences
 
 
 class ConfigException(Exception):
@@ -32,6 +32,7 @@ class Daemon(object):
                           self.config['settings']['interval'])
             while True:
                 self._scrap()
+
                 sleep(self.config['settings']['interval'])
         else:
             self._scrap()
@@ -39,16 +40,11 @@ class Daemon(object):
     def _scrap(self):
         logging.info('Scraping.')
         for scrapper in self.scrappers:
-            self.houses.extend(scrapper.scrap())
-        self.write_csv()
+            self.houses.extend(set(scrapper.scrap()))
 
-    def write_csv(self):
-        logging.info('Writing CSV in %s', self.config['settings']['out'])
-        with open(self.config['settings']['out'], 'wb') as f:
-            writer = UnicodeWriter(f)
-            writer.writerows(
-                [House.headers] + [x.row for x in set(self.houses)]
-            )
+        write_csv(self.config['settings']['out'], self.houses)
+        find_differences(self.config['settings']['out'], self.houses)
+
 
     def add_scrappers(self):
         for key, val in self.config['data'].iteritems():
