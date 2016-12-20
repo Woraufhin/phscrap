@@ -1,6 +1,7 @@
 """ Utils for app """
 
 import re
+import os
 import logging
 
 from .house import House
@@ -25,20 +26,24 @@ def find_differences(path, data):
         and then proceed to diff the sets.
 
     """
+    if os.path.exists(path):
+        with open(path, 'r') as csv_file:
+            rows = UnicodeReader(csv_file)
+            next(rows, None)  # skip the headers
+            houses = [House(*row) for row in rows]
 
-    with open(path, 'r') as csv_file:
-        rows = UnicodeReader(csv_file)
-        next(rows, None)  # skip the headers
-        houses = [House(*row) for row in rows]
+        diff = set(data).difference(houses)
 
-    diff = set(data).difference(houses)
-
-    if diff:
-        logging.info('Found %i new entries this run:', len(diff))
-        for h in diff:
-            logging.info('\t%s, %s', h.price, h.address)
+        if diff:
+            logging.info('Found %i new entries this run:', len(diff))
+            for h in diff:
+                logging.info('\t%s, %s', h.price, h.address)
+        else:
+            logging.info('No new entries found')
     else:
-        logging.info('No new entries found')
+        logging.warning(
+            'Not calculating diff. File {} does not exist'.format(path)
+        )
 
 
 def write_csv(path, houses):

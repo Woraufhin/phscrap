@@ -32,7 +32,6 @@ class Daemon(object):
                           self.config['settings']['interval'])
             while True:
                 self._scrap()
-
                 sleep(self.config['settings']['interval'])
         else:
             self._scrap()
@@ -42,8 +41,8 @@ class Daemon(object):
         for scrapper in self.scrappers:
             self.houses.extend(set(scrapper.scrap()))
 
-        write_csv(self.config['settings']['out'], self.houses)
         find_differences(self.config['settings']['out'], self.houses)
+        write_csv(self.config['settings']['out'], self.houses)
 
 
     def add_scrappers(self):
