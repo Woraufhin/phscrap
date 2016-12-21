@@ -15,7 +15,7 @@ argenprop = [
 
 [settings]
 # Interval in seconds to perform check
-interval = 3600
+interval = 1800
 
 # Cache files (no need to create default folder, but
 # bare in mind if you change it that new folder would
@@ -30,3 +30,14 @@ verbosity = "INFO"
 
 # Log file
 log_file = "/var/log/phscrap/scrap.log"
+
+[emailing]
+# Enable emailing feature
+enable = false
+
+# Choose address from which to send emails
+login = ""
+passwd = ""
+
+# A list of receivers
+receivers = []

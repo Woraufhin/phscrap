@@ -10,7 +10,7 @@ import toml
 
 from .scrapers import Scraper, Argencrap, Zonacrap
 from .house import House
-from .utils import write_csv, find_differences
+from .utils import write_csv, find_differences, send_email
 
 
 class ConfigException(Exception):
@@ -41,8 +41,16 @@ class Daemon(object):
         for scrapper in self.scrappers:
             self.houses.extend(set(scrapper.scrap()))
 
-        find_differences(self.config['settings']['out'], self.houses)
+        diff = find_differences(self.config['settings']['out'], self.houses)
         write_csv(self.config['settings']['out'], self.houses)
+        send_email(
+            self.config['emailing']['enable'] and not \
+            self.config['settings']['single_run'],
+            self.config['emailing']['login'],
+            self.config['emailing']['passwd'],
+            self.config['emailing']['receivers'],
+            diff
+        )
 
 
     def add_scrappers(self):
